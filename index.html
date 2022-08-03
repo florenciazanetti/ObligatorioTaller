@@ -38,7 +38,7 @@
             <ion-route url="/" component="pagina-login"></ion-route>
             <ion-route url="/monedas" component="pagina-monedas"></ion-route>
             <ion-route url="/moneda" component="pagina-moneda"></ion-route>
-            <ion-route url="/transferencia" component="pagina-transferencia"></ion-route>
+            <ion-route url="/transferir" component="pagina-transferencia"></ion-route>
             <ion-route url="/transacciones" component="pagina-transacciones"></ion-route>
             <ion-route url="/inversiones" component="pagina-inversiones"></ion-route>
         </ion-router>
@@ -68,7 +68,7 @@
                 <ion-grid>
                     <ion-row>
                         <ion-col size="12">
-                            <ion-button expand="block" id="btLogin">Login</ion-button>
+                            <ion-button expand="block" id="btnLogin">Login</ion-button>
                         </ion-col>
                     </ion-row>
                     <ion-row>
@@ -134,12 +134,16 @@
                 </ion-toolbar>
             </ion-footer>
         </ion-page>
+
         <!-- Listado de monedas -->
         <ion-page class="ion-page" id="pagina-monedas">
             <!--Monedas header-->
             <ion-header>
                 <ion-toolbar>
-                    <ion-title class="ion-text-center">Moneda</ion-title>
+                    <ion-buttons slot="start">
+                        <ion-menu-button></ion-menu-button>
+                    </ion-buttons>
+                    <ion-title class="ion-text-center">Monedas</ion-title>
                 </ion-toolbar>
             </ion-header>
             <!--Monedas content-->
@@ -149,8 +153,80 @@
                         <ion-label id="listaMonedasHeader"></ion-label>
                     </ion-list-header>
                 </ion-list>
+                <ion-grid>
+                    <ion-row>
+                        <ion-col size="12">
+                            ¿Desea transferir? <ion-router-link href="/transferir" class="underline">Ingresa aquí
+                            </ion-router-link>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
             </ion-content>
             <!--Monedas footer-->
+            <ion-footer>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Footer</ion-title>
+                </ion-toolbar>
+            </ion-footer>
+        </ion-page>
+
+        <!-- Transferir -->
+        <ion-page class="ion-page" id="pagina-transferencia">
+            <!--Transferir header-->
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Transferir</ion-title>
+                </ion-toolbar>
+            </ion-header>
+            <!--Transferir content-->
+            <ion-content class="ion-padding">
+                <ion-item>
+                    <ion-label>Tipo de Operación</ion-label>
+                    <ion-select>
+                      <ion-select-option value="1">Compra</ion-select-option>
+                      <ion-select-option value="2">Venta</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                  <ion-item>
+                    <ion-label position="floating">Cantidad de Unidades</ion-label>
+                    <ion-input type="number" placeholder="Ingrese cantidad de unidades" id="txtCantidadUnidades"></ion-input>
+                </ion-item>
+                <ion-grid>
+                    <ion-row>
+                        <ion-col size="12">
+                            <ion-button color="primary" expand="block" id="btnTransferir">Transferir</ion-button>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-content>
+            <!--Transferir footer-->
+            <ion-footer>
+                <ion-toolbar>
+                    <ion-title class="ion-text-center">Footer</ion-title>
+                </ion-toolbar>
+            </ion-footer>
+        </ion-page>
+
+        <!-- Listado de transacciones -->
+        <ion-page class="ion-page" id="pagina-transacciones">
+            <!--Transacciones header-->
+            <ion-header>
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-menu-button></ion-menu-button>
+                    </ion-buttons>
+                    <ion-title class="ion-text-center">Transacciones</ion-title>
+                </ion-toolbar>
+            </ion-header>
+            <!--Transacciones content-->
+            <ion-content class="ion-padding">
+                <ion-list id="listaTransacciones">
+                    <ion-list-header>
+                        <ion-label id="listaTrasaccionesHeader"></ion-label>
+                    </ion-list-header>
+                </ion-list>
+            </ion-content>
+            <!--Transacciones footer-->
             <ion-footer>
                 <ion-toolbar>
                     <ion-title class="ion-text-center">Footer</ion-title>
@@ -161,3 +237,22 @@
 </body>
 
 </html>
+
+<!-- <ion-list id="listaMonedas">
+    <ion-item ngFor= "let moneda of monedas" (click)= "siguientePantalla()">
+      <ion-label>Pokémon Yellow</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Mega Man X</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>The Legend of Zelda</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Pac-Man</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Super Mario World</ion-label>
+    </ion-item>
+  </ion-list> -->
+

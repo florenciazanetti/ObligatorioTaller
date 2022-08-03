@@ -8,11 +8,40 @@ async function cargando(message) {
     return await loading;
 }
 
-function mostrarDatos(datos) {
-    alert(datos.apikey);
-    loscalStorage.setItem('token', datos.apikey);
+async function presentAlert(header, sub_header, message) {
+    const alert = document.createElement('ion-alert');
+    alert.header = header;
+    alert.subHeader = sub_header;
+    alert.message = message;
+    alert.buttons = ['OK'];
+    document.body.appendChild(alert);
+    await alert.present();
+}
+function getParam(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
+function mostrarDatos(datos) {
+    alert(datos.apikey);
+    loscalStorage.setItem('apikey', datos.apikey);
+}
+// function mostrarDatos2 (){
+//     const url = apiUrl + '/monedas.php';
+//     fetch(url, {
+//         headers: {
+//             "apikey": `${datos.apikey}`,
+//             "Content-type": "application/json"
+//         }
+//     })
+//     .then(respuesta => (respuesta.ok)?respuesta.json():respuesta.json().then(data => Promise.reject(data.error)))
+//     .then(data => listarMonedas(data))
+//     .catch(mensaje => display_toast(mensaje, 'Info', 'primary'))
+// }
 function display_toast(mensaje, header, color) {
     const toast = document.createElement('ion-toast');
     toast.header = header;
@@ -24,11 +53,14 @@ function display_toast(mensaje, header, color) {
     toast.present();
 }
 
+
 function login(data, router) {
-    sessionStorage.setItem('apikey', data.apikey);
-    sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+    sessionStorage.setItem('apikey', data.apiKey);
+    sessionStorage.setItem('usuario', JSON.stringify(data.id));
     router.push('/monedas');
 }
+
 document.addEventListener('DOMContentLoaded', function () {
     let router = document.querySelector('ion-router');
     router.addEventListener('ionRouteDidChange', function (e) {
@@ -54,6 +86,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (nav.to == '/usuario') {
             info_usuario();
         }
+        if (nav.to == '/transferir') {
+            moneda();
+        }
+        if (nav.to == '/transacciones') {
+            listarTransacciones();
+        }
     });
 
     function listarMonedas() {
@@ -67,47 +105,125 @@ document.addEventListener('DOMContentLoaded', function () {
                     "Content-type": "application/json"
                 }
             }).then(respuesta => respuesta.json())
-                .then(data => crearListadoMonedas(data))
+                .then(data => crearListadoMonedas(data.monedas))
                 .catch(error => display_toast(error, 'Info', 'primary'))
                 .finally(() => loading.dismiss());
         });
     }
 
 
-     function crearListadoMonedas(data){
-         let usuario = sessionStorage.getItem("usuario");
-         usuario = JSON.parse(usuario);
-         document.getElementById('listaMonedasHeader').innerHTML = `Hola <strong>${usuario}</strong>!`;
-         //console.log(data);
-         let lista = document.getElementById('listaMonedas');
-         let item = '';
-         data.forEach(function(monedas){
-             item = `<ion-item href="/monedas?id=${monedas.id}" detail>
+    function crearListadoMonedas(monedas) {
+
+        let lista = document.getElementById('listaMonedas'); //es de tipo html element
+        let item = '';                                       // es un string 
+        for (let i = 0; i < monedas.length; i++) {           //monedas array dentro de data
+            let moneda = monedas[i];
+            item = `<ion-item href="/monedas?id=${moneda._id}" detail>
              <ion-avatar slot="start">
-               <img src="${monedas.imagen}" />
+               <img src="https://crypto.develotion.com/imgs/${moneda.imagen}" />
              </ion-avatar>
              <ion-label>
-               <h2>${monedas.nombre}</h2>
-               <h3>${monedas.cotizacion}</h3>
+               <h2>${moneda.nombre}</h2>
+               <h3>${moneda.cotizacion}</h3>
              </ion-label>
            </ion-item>`;
-           lista.innerHTML += item;
-         });
-     }
+            lista.innerHTML += item;
+        }
+
+    }
+
+    //---------------------------------- TRANSFERIR --------------------------------------------------------------// 
+
+
+    function moneda() { //mi idea aca era que cuando clikeas la moneda, te lleve a querer hacer la transferencia. 
+        //por eso luego supuse una funcion "transferir" lo cual no se como continuar.
+
+        const monedaId = getParam('id');
+        const url = `https://crypto.develotion.com/monedas.php${monedaId}`;
+        let apikey = sessionStorage.getItem("apikey");
+        fetch(url, {
+            headers: {
+                "apikey": `${apikey}`,
+                "Content-type": "application/json"
+            }
+        }).then(respuesta => respuesta.json())
+            .then(id => tansferir(id))
+    }
+
+
+    document.getElementById('btnTransferir').onclick = function transferir() {
+
+
+        const cantidadUnidades = document.getElementById('txtCantidadUnidades').value;
+
+    }
+
+    //--------------------------------------------------------------------------------------------------------------//
+
+
+
+    //----------------------------------- TRANSACCIONES -----------------------------------------------------------//
+
+
+    function listarTransacciones() {
+        cargando('Cargando transacciones...').then((loading) => {
+            loading.present();
+            const idUsuario = getParam('idUsuario');
+            const url = `https://crypto.develotion.com/transacciones.php?=${idUsuario}`;
+            let apikey = sessionStorage.getItem("apikey");
+            fetch(url, {
+                headers: {
+                    "apikey": `${apikey}`,
+                    "Content-type": "application/json"
+                }
+            }).then(respuesta => respuesta.json())
+                .then(data => crearListadoTransacciones(data.monedas))
+                .catch(error => display_toast(error, 'Info', 'primary'))
+                .finally(() => loading.dismiss());
+        });
+    }
+
+
+    function crearListadoTransacciones(transacciones) {
+
+        let lista = document.getElementById('listaTransacciones'); 
+        let item = '';                                      
+        for (let i = 0; i < transacciones.length; i++) {          
+            let transaccion = transacciones[i];
+            item = `<ion-item href="/transacciones?id=${transaccion._id}" detail>
+             <ion-avatar slot="start">
+               <img src="https://crypto.develotion.com/imgs/${transaccion.imagen}" />
+             </ion-avatar>
+             <ion-label>                      
+               <h2>${transaccion.moneda}</h2>  
+               <h3>${transaccion.tipo}</h3>
+               <h3>${transaccion.cantidad}</h3>
+               <h3>${transaccion.valor}</h3>
+             </ion-label>
+           </ion-item>`;
+            lista.innerHTML += item;
+        }                           
+
+    }
     
-    
-    //  window.onload = function mostrarListado(){
-    //      let apikey = sessionStorage.getItem("apikey");
-    //      const url = 'https://crypto.develotion.com/monedas.php';
-    //      fetch(url, {
-    //          headers:{
+    //--------------------------------------------------------------------------------------------------------------//
+
+
+
+    //   window.onload = function mostrarListado(){
+    //     const apikey = sessionStorage.getItem("apiKey");
+    //       const url = 'https://crypto.develotion.com/monedas.php';
+    //       fetch(url, {
+    //           headers:{
     //              "Content-type":"application/json",
     //              "apikey": `${apikey}` //ARREGLAR SEGUN LA API
-    //          }
-    //      }).then(respuesta => (respuesta.ok)?respuesta.json():respuesta.json().then(data => Promise.reject(data.mensaje)))
-    //      .then(data => listarLocales(data))
-    //      .catch(mensaje => alert(mensaje))
-    //  }
+    //           }
+
+    //       }).then(respuesta => (respuesta.ok)?respuesta.json():respuesta.json().then(data => Promise.reject(data.mensaje)))
+    //       .then(data => listarMonedas(data))
+    //       .catch(mensaje => alert(mensaje))
+    //   }
+
 
     document.getElementById('btnRegistro').onclick = function () {
         try {
